@@ -1,0 +1,279 @@
+/* =====================================
+   PANEL DE CALIDAD DEL AIRE
+   (se suma a estilos.css, no lo reemplaza)
+===================================== */
+
+:root {
+    --aire-bueno: #2E9E5B;
+    --aire-medio: #D9A514;
+    --aire-malo: #D64545;
+    --aire-viejo: #9AA5A0;
+}
+
+.selector-fila {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 22px;
+}
+
+.selector-fila label {
+    font-weight: bold;
+    color: var(--verde-oscuro);
+}
+
+.selector-fila select {
+    padding: 10px 14px;
+    border: 1px solid var(--borde);
+    border-radius: 6px;
+    background: var(--blanco);
+    color: var(--texto);
+    font-size: 15px;
+    min-width: 260px;
+    max-width: 100%;
+}
+
+/* ---------- Estado del aire ---------- */
+
+.estado-panel {
+    --color-nivel: var(--aire-viejo);
+    margin-top: 24px;
+    display: grid;
+    grid-template-columns: 330px 1fr;
+    background: var(--blanco);
+    border: 1px solid var(--borde);
+    border-left: 6px solid var(--color-nivel);
+    border-radius: 10px;
+    box-shadow: var(--sombra);
+    overflow: hidden;
+}
+
+.estado-panel[data-nivel="Bueno"] { --color-nivel: var(--aire-bueno); }
+.estado-panel[data-nivel="Medio"] { --color-nivel: var(--aire-medio); }
+.estado-panel[data-nivel="Malo"]  { --color-nivel: var(--aire-malo); }
+
+.estado-medidor {
+    padding: 26px 20px;
+    text-align: center;
+    border-right: 1px solid var(--borde);
+}
+
+#medidor { width: 100%; max-width: 270px; }
+
+#medidor .aguja {
+    transform-origin: 120px 120px;
+    transition: transform 0.9s cubic-bezier(.2, .8, .2, 1);
+}
+
+#medidor .aguja line {
+    stroke: var(--texto);
+    stroke-width: 4;
+    stroke-linecap: round;
+}
+
+#medidor .aguja circle { fill: var(--texto); }
+
+#medidor text {
+    font-size: 15px;
+    font-weight: bold;
+    fill: var(--texto-secundario);
+}
+
+.estado-nivel {
+    font-size: 30px;
+    font-weight: bold;
+    color: var(--color-nivel);
+    line-height: 1.2;
+    margin-top: 4px;
+}
+
+.estado-lugar {
+    color: var(--texto-secundario);
+    font-size: 14px;
+}
+
+.estado-detalle { padding: 26px 28px; }
+
+.estado-mensaje {
+    font-size: 18px;
+    color: var(--texto);
+    margin-bottom: 6px;
+}
+
+.estado-validacion {
+    font-size: 13px;
+    margin-bottom: 18px;
+    color: var(--aire-bueno);
+    font-weight: bold;
+}
+
+.estado-validacion.alerta { color: var(--aire-malo); }
+
+.tabla-gases {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+.tabla-gases th {
+    text-align: left;
+    font-size: 12px;
+    color: var(--texto-secundario);
+    font-weight: normal;
+    padding: 6px 8px;
+    border-bottom: 1px solid var(--borde);
+}
+
+.tabla-gases td {
+    padding: 10px 8px;
+    border-bottom: 1px solid var(--borde);
+    vertical-align: middle;
+}
+
+.tabla-gases .gas-nombre small {
+    display: block;
+    color: var(--texto-secundario);
+    font-size: 12px;
+}
+
+.tabla-gases .gas-valor { font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+.barra-gas {
+    height: 5px;
+    background: var(--borde);
+    border-radius: 3px;
+    margin-top: 6px;
+    overflow: hidden;
+}
+
+.barra-gas span {
+    display: block;
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.6s;
+}
+
+.etiqueta-nivel {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: bold;
+    color: #fff;
+}
+
+.etiqueta-nivel.Bueno { background: var(--aire-bueno); }
+.etiqueta-nivel.Medio { background: var(--aire-medio); color: #3a2c00; }
+.etiqueta-nivel.Malo  { background: var(--aire-malo); }
+
+.nota-gases {
+    margin-top: 16px;
+    font-size: 12px;
+    color: var(--texto-secundario);
+}
+
+/* ---------- Gráficas ---------- */
+
+.graficas-section { background: var(--blanco); }
+
+.grafica-controles {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-bottom: 16px;
+}
+
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+
+.chip {
+    padding: 8px 14px;
+    border: 1px solid var(--borde);
+    border-radius: 20px;
+    background: var(--fondo);
+    color: var(--texto);
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.chip:hover { border-color: var(--verde-principal); }
+.chip:focus-visible { outline: 3px solid #A9D8B9; outline-offset: 2px; }
+
+.chip.activo {
+    background: var(--verde-principal);
+    border-color: var(--verde-principal);
+    color: var(--blanco);
+}
+
+.grafica-caja {
+    position: relative;
+    height: 400px;
+    padding: 16px;
+    border: 1px solid var(--borde);
+    border-radius: 10px;
+    box-shadow: var(--sombra);
+}
+
+.grafica-vacia {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--texto-secundario);
+    background: rgba(255, 255, 255, 0.85);
+}
+
+/* ---------- Mapa ---------- */
+
+.mapa-caja {
+    border: 1px solid var(--borde);
+    border-radius: 10px;
+    box-shadow: var(--sombra);
+    overflow: hidden;
+}
+
+#mapaAire { height: 460px; width: 100%; }
+
+.leyenda {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-top: 14px;
+    font-size: 13px;
+    color: var(--texto-secundario);
+}
+
+.punto {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin-right: 6px;
+    vertical-align: -1px;
+}
+
+.punto.bueno { background: var(--aire-bueno); }
+.punto.medio { background: var(--aire-medio); }
+.punto.malo  { background: var(--aire-malo); }
+.punto.viejo { background: var(--aire-viejo); }
+
+.popup-aire strong { display: block; font-size: 15px; }
+.popup-aire span { color: #555; font-size: 12px; }
+
+@media (max-width: 900px) {
+    .estado-panel { grid-template-columns: 1fr; }
+    .estado-medidor { border-right: none; border-bottom: 1px solid var(--borde); }
+}
+
+@media (max-width: 700px) {
+    .selector-fila { flex-direction: column; align-items: stretch; }
+    .selector-fila select { min-width: 0; }
+    .grafica-caja { height: 320px; padding: 8px; }
+    #mapaAire { height: 360px; }
+    .estado-detalle { padding: 20px 16px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #medidor .aguja, .barra-gas span { transition: none; }
+}

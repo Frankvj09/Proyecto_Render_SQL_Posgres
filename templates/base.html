@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>{% block title %}Monitoreo de Calidad del Aire{% endblock %}</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/estilos.css') }}">
+
+    {% block head %}{% endblock %}
+</head>
+
+<body>
+
+    {% include 'navbar.html' %}
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="footer" id="proyecto">
+        <div class="footer-container">
+
+            <div class="footer-brand">
+                <img src="{{ url_for('static', filename='img/udec.png') }}" 
+                    alt="Logo Universidad de Cundinamarca"
+                        class="footer-logo">
+
+
+                <div>
+                    <h3>Universidad de Cundinamarca</h3>
+                    <p>Ingeniería de Sistemas y Computación</p>
+                </div>
+            </div>
+
+            <div class="footer-info">
+                <p>Sistema de monitoreo de calidad del aire</p>
+                <p>Proyecto académico de investigación</p>
+                <p>2026</p>
+            </div>
+
+        </div>
+
+        <div class="footer-bottom">
+            <p>© 2026 - Monitoreo de Calidad del Aire</p>
+        </div>
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/principal.js') }}"></script>
+
+    {% block scripts %}{% endblock %}
+
+</body>
+
+</html>
+
+

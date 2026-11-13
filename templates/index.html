@@ -1,0 +1,298 @@
+{% extends 'base.html' %}
+
+{% block title %}Inicio | Monitoreo de Calidad del Aire{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/panel.css') }}">
+{% endblock %}
+
+{% block content %}
+
+<section class="hero" id="inicio">
+
+    <div class="hero-content">
+        <span class="hero-label">SISTEMA DE MONITOREO AMBIENTAL</span>
+
+        <h1>Monitoreo de la calidad del aire</h1>
+
+        <p>
+            Sistema de adquisición, almacenamiento y visualización
+            de datos ambientales mediante tecnología ESP32 y sensor MQ-135.
+        </p>
+
+        <a href="#estadisticas" class="btn-primary">
+            Ver estadísticas
+        </a>
+    </div>
+
+    <div class="hero-decoration">
+        <div class="hero-circle">
+            <span>MQ-135</span>
+            <small>Sensor ambiental</small>
+        </div>
+    </div>
+
+</section>
+
+
+<!-- ============ ESTADÍSTICAS Y ESTADO DEL AIRE ============ -->
+<section class="section-container" id="estadisticas">
+
+    <div class="section-heading">
+        <span class="section-label">INFORMACIÓN EN TIEMPO REAL</span>
+        <h2>Panel de estadísticas</h2>
+        <p>Se actualiza cada 30 segundos con la última lectura recibida.</p>
+    </div>
+
+    <div class="selector-fila">
+        <label for="selUbicacion">Lugar</label>
+        <select id="selUbicacion">
+            <option value="">Última lectura recibida</option>
+        </select>
+    </div>
+
+    <div class="stats-grid">
+
+        <article class="stat-card">
+            <div class="stat-icon">▤</div>
+            <div>
+                <p class="stat-title">Lecturas recibidas</p>
+                <h3 id="totalLecturas">--</h3>
+                <span class="stat-description">Registros almacenados</span>
+            </div>
+        </article>
+
+        <article class="stat-card">
+            <div class="stat-icon">◉</div>
+            <div>
+                <p class="stat-title">Última lectura ADC</p>
+                <h3 id="ultimaLectura">--</h3>
+                <span class="stat-description" id="ultimoVoltaje">Valor registrado</span>
+            </div>
+        </article>
+
+        <article class="stat-card">
+            <div class="stat-icon">◷</div>
+            <div>
+                <p class="stat-title">Última actualización</p>
+                <h3 id="ultimaFecha">--</h3>
+                <span class="stat-description" id="ultimoSensor">Fecha del último registro</span>
+            </div>
+        </article>
+
+    </div>
+
+    <div class="estado-panel" id="estadoPanel" data-nivel="sin-datos">
+
+        <div class="estado-medidor">
+            <svg viewBox="0 0 240 150" id="medidor" role="img" aria-label="Medidor de calidad del aire">
+                <g id="medidorArcos"></g>
+                <g id="medidorAguja" class="aguja">
+                    <line x1="120" y1="120" x2="52" y2="120"></line>
+                    <circle cx="120" cy="120" r="7"></circle>
+                </g>
+                <text x="120" y="146" text-anchor="middle" id="medidorValor">--</text>
+            </svg>
+            <p class="estado-nivel" id="estadoNivel">Sin datos</p>
+            <p class="estado-lugar" id="estadoLugar">--</p>
+        </div>
+
+        <div class="estado-detalle">
+            <p class="estado-mensaje" id="estadoMensaje">Esperando la primera lectura.</p>
+            <p class="estado-validacion" id="estadoValidacion"></p>
+
+            <table class="tabla-gases">
+                <thead>
+                    <tr>
+                        <th>Gas</th>
+                        <th>Concentración estimada</th>
+                        <th>Nivel</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaGases">
+                    <tr><td colspan="3">--</td></tr>
+                </tbody>
+            </table>
+
+            <p class="nota-gases">
+                El MQ-135 entrega una sola señal que responde a varios gases a la vez.
+                Las concentraciones son estimaciones a partir de las curvas del fabricante
+                y no reemplazan un equipo de medición certificado.
+            </p>
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- ============ GRÁFICAS EN VIVO ============ -->
+<section class="section-container graficas-section" id="graficas">
+
+    <div class="section-heading">
+        <span class="section-label">LÍNEA DE TIEMPO</span>
+        <h2>Evolución de los contaminantes</h2>
+        <p>
+            Las bandas de color marcan los niveles bueno, medio y malo.
+            La gráfica se actualiza con cada lectura recibida.
+        </p>
+    </div>
+
+    <div class="grafica-controles">
+        <div class="chips" id="chipsGas" role="group" aria-label="Variable a graficar"></div>
+
+        <div class="chips" id="chipsRango" role="group" aria-label="Rango de tiempo">
+            <button class="chip activo" data-min="60">1 hora</button>
+            <button class="chip" data-min="360">6 horas</button>
+            <button class="chip" data-min="1440">24 horas</button>
+        </div>
+    </div>
+
+    <div class="grafica-caja">
+        <canvas id="graficaSerie"></canvas>
+        <p class="grafica-vacia" id="graficaVacia" hidden>
+            No hay lecturas en este rango para el lugar elegido.
+        </p>
+    </div>
+
+</section>
+
+
+<!-- ============ MAPA ============ -->
+<section class="section-container mapa-section" id="mapa">
+
+    <div class="section-heading">
+        <span class="section-label">COBERTURA</span>
+        <h2>Mapa de calidad del aire</h2>
+        <p>Última lectura de cada lugar monitoreado. Haz clic en un punto para ver el detalle.</p>
+    </div>
+
+    <div class="mapa-caja">
+        <div id="mapaAire"></div>
+    </div>
+
+    <div class="leyenda">
+        <span><i class="punto bueno"></i> Bueno</span>
+        <span><i class="punto medio"></i> Medio</span>
+        <span><i class="punto malo"></i> Malo</span>
+        <span><i class="punto viejo"></i> Sin señal reciente</span>
+    </div>
+
+</section>
+
+
+<section class="section-container powerbi-section" id="datos">
+
+    <div class="section-heading">
+        <span class="section-label">INTELIGENCIA DE NEGOCIOS</span>
+        <h2>Visualización de datos</h2>
+        <p>
+            Análisis histórico de las mediciones registradas mediante
+            Microsoft Power BI.
+        </p>
+    </div>
+
+    <div class="powerbi-container">
+
+        <iframe
+            title="Power BI - Monitoreo de Calidad del Aire"
+            src="https://app.powerbi.com/view?r=eyJrIjoiMDE3ZDNjM2YtMTZhYS00ZmNlLWI0MWEtNWNjZTE3MzJhOTZjIiwidCI6IjA3ZGE2N2EwLTFmNDMtNGU4Yy05NzdmLTVmODhiNjQ3MGVlNiIsImMiOjR9"
+            allowfullscreen="true">
+        </iframe>
+
+    </div>
+
+    <p class="powerbi-note">
+        Los datos presentados corresponden al informe publicado en Power BI.
+    </p>
+
+</section>
+
+
+<section class="section-container sensor-section" id="sensor">
+
+    <div class="section-heading">
+        <span class="section-label">EQUIPAMIENTO</span>
+        <h2>Información del sensor</h2>
+        <p>Dispositivo encargado de adquirir las mediciones ambientales.</p>
+    </div>
+
+    <div class="sensor-card">
+
+        <div class="sensor-visual">
+            <div class="sensor-symbol">◉</div>
+            <h3>MQ-135</h3>
+            <p>Sensor de calidad del aire</p>
+        </div>
+
+        <div class="sensor-details">
+
+            <div class="detail-item">
+                <span>Código del sensor</span>
+                <strong>MQ135-REAL-001</strong>
+            </div>
+
+            <div class="detail-item">
+                <span>Modelo</span>
+                <strong>MQ-135</strong>
+            </div>
+
+            <div class="detail-item">
+                <span>Microcontrolador</span>
+                <strong>ESP32</strong>
+            </div>
+
+            <div class="detail-item">
+                <span>Ubicación</span>
+                <strong>UBICACION-001</strong>
+            </div>
+
+            <div class="detail-item">
+                <span>Tipo de medición</span>
+                <strong>ADC</strong>
+            </div>
+
+            <div class="detail-item">
+                <span>Estado del dispositivo</span>
+                <strong class="status-active">Registrado</strong>
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<section class="project-section">
+
+    <div class="project-content">
+        <span class="section-label">ACERCA DEL SISTEMA</span>
+
+        <h2>Un sistema de monitoreo ambiental</h2>
+
+        <p>
+            El proyecto integra dispositivos electrónicos, almacenamiento
+            de información y herramientas de análisis para facilitar
+            el seguimiento de las mediciones de calidad del aire.
+        </p>
+
+        <div class="project-features">
+            <div>✓ Adquisición mediante ESP32</div>
+            <div>✓ Sensor MQ-135</div>
+            <div>✓ Almacenamiento en SQL Server</div>
+            <div>✓ Visualización mediante Power BI</div>
+        </div>
+    </div>
+
+</section>
+
+{% endblock %}
+
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="{{ url_for('static', filename='js/panel.js') }}"></script>
+{% endblock %}
